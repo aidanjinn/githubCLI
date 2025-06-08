@@ -125,11 +125,15 @@ func TestToString(t *testing.T) {
 
 	actions := userData.UserActions
 
-	if userData.Str() != "- aidanjinn performed PushEvent on aidanjinn/aidanjinn\n" {
+	userDataCorrectString := "Total Stats: \n"
+	userDataCorrectString += "PushEvent : 1\n"
+	userDataCorrectString += "- aidanjinn performed PushEvent on aidanjinn/aidanjinn -- Message: Update README.md\n"
+	if userData.Str() != userDataCorrectString {
 		t.Errorf("Expected actions to be 'PushEvent', got '%v'", actions)
 	}
 
-	if actions[0].Str() != "- aidanjinn performed PushEvent on aidanjinn/aidanjinn\n" {
+	correctString := "- aidanjinn performed PushEvent on aidanjinn/aidanjinn -- Message: Update README.md\n"
+	if actions[0].Str() != correctString {
 		t.Errorf("Expected actions to be 'PushEvent', got '%v'", actions)
 	}
 }

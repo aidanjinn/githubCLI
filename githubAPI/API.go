@@ -19,12 +19,35 @@ func ToString(o Output) {
 
 type GithubUser struct {
 	UserActions []Action
+	ActionStats map[string]int
+}
+
+func (g *GithubUser) generateStats() {
+	g.ActionStats = make(map[string]int)
+	// We have counters for all github actions types we encounter
+	// When looking through our users github actions
+	for _, action := range g.UserActions {
+
+		_, exists := g.ActionStats[action.Type]
+		if !exists {
+			g.ActionStats[action.Type] = 1
+		} else {
+			g.ActionStats[action.Type]++
+		}
+
+	}
 }
 
 func (g *GithubUser) Str() string {
-
 	var sb strings.Builder
 
+	// String Building for total stats held in users ActionStats
+	sb.WriteString("Total Stats: \n")
+	for key, value := range g.ActionStats {
+		sb.WriteString(key + " : " + strconv.Itoa(value) + "\n")
+	}
+
+	// String Building for each individual action
 	for _, action := range g.UserActions {
 		sb.WriteString(action.Str())
 	}
@@ -43,7 +66,11 @@ func (a *Action) Str() string {
 
 	var output string
 
-	output += fmt.Sprintf("- %s performed %s on %s\n", a.Actor.DisplayName, a.Type, a.Repo.RepoName)
+	if len(a.Payload.Commits) <= 0 {
+		output += fmt.Sprintf("- %s performed %s on %s\n", a.Actor.DisplayName, a.Type, a.Repo.RepoName)
+	} else {
+		output += fmt.Sprintf("- %s performed %s on %s -- Message: %s\n", a.Actor.DisplayName, a.Type, a.Repo.RepoName, a.Payload.Commits[0].Message)
+	}
 	return output
 }
 
@@ -83,7 +110,10 @@ func LoadJSON(resp *http.Response) (GithubUser, error) {
 		return GithubUser{}, err
 	}
 
+	//First we load the data for the user
 	ret := GithubUser{UserActions: data}
+	//Then we generate the total stats based on that loaded data
+	ret.generateStats()
 	return ret, nil
 }
 
