@@ -1,0 +1,48 @@
+curl -L \
+  -H "Accept: application/vnd.github+json" \
+  -H "X-GitHub-Api-Version: 2022-11-28" \
+  "https://api.github.com/users/aidanjinn/events/public?per_page=1"
+
+
+[
+  {
+    "id": "50586368742",
+    "type": "PushEvent",
+    "actor": {
+      "id": 96208746,
+      "login": "aidanjinn",
+      "display_login": "aidanjinn",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/aidanjinn",
+      "avatar_url": "https://avatars.githubusercontent.com/u/96208746?"
+    },
+    "repo": {
+      "id": 438780222,
+      "name": "aidanjinn/aidanjinn",
+      "url": "https://api.github.com/repos/aidanjinn/aidanjinn"
+    },
+    "payload": {
+      "repository_id": 438780222,
+      "push_id": 24735860700,
+      "size": 1,
+      "distinct_size": 1,
+      "ref": "refs/heads/main",
+      "head": "6401fba434db35583b566910f7373100fce823ac",
+      "before": "6c212deafbaea9a94c29f62bbc83a858b0e4267c",
+      "commits": [
+        {
+          "sha": "6401fba434db35583b566910f7373100fce823ac",
+          "author": {
+            "email": "96208746+aidanjinn@users.noreply.github.com",
+            "name": "Aidan Wendorf"
+          },
+          "message": "Update README.md",
+          "distinct": true,
+          "url": "https://api.github.com/repos/aidanjinn/aidanjinn/commits/6401fba434db35583b566910f7373100fce823ac"
+        }
+      ]
+    },
+    "public": true,
+    "created_at": "2025-06-06T05:47:49Z"
+  }
+]
