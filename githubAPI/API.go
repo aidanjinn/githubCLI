@@ -6,29 +6,30 @@ import (
 	"io"
 	"net/http"
 	"strconv"
+	"strings"
 )
 
 type Output interface {
-	str() string
+	Str() string
 }
 
 func ToString(o Output) {
-	fmt.Println(o.str())
+	fmt.Println(o.Str())
 }
 
 type GithubUser struct {
 	UserActions []Action
 }
 
-func (g *GithubUser) str() string {
+func (g *GithubUser) Str() string {
 
-	var output string
+	var sb strings.Builder
 
 	for _, action := range g.UserActions {
-		output += action.str()
+		sb.WriteString(action.Str())
 	}
 
-	return output
+	return sb.String()
 }
 
 type Action struct {
@@ -38,12 +39,11 @@ type Action struct {
 	Payload Payload `json:"payload"`
 }
 
-func (a *Action) str() string {
+func (a *Action) Str() string {
 
 	var output string
 
-	output += "- " + a.Actor.DisplayName + " " + a.Type + " : " + a.Repo.RepoName + "\n"
-
+	output += fmt.Sprintf("- %s performed %s on %s\n", a.Actor.DisplayName, a.Type, a.Repo.RepoName)
 	return output
 }
 
