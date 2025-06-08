@@ -2,12 +2,33 @@ package githubAPI
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
+	"strconv"
 )
+
+type Output interface {
+	str() string
+}
+
+func ToString(o Output) {
+	fmt.Println(o.str())
+}
 
 type GithubUser struct {
 	UserActions []Action
+}
+
+func (g *GithubUser) str() string {
+
+	var output string
+
+	for _, action := range g.UserActions {
+		output += action.str()
+	}
+
+	return output
 }
 
 type Action struct {
@@ -15,6 +36,15 @@ type Action struct {
 	Actor   Actor   `json:"actor"`
 	Repo    Repo    `json:"repo"`
 	Payload Payload `json:"payload"`
+}
+
+func (a *Action) str() string {
+
+	var output string
+
+	output += "- " + a.Actor.DisplayName + " " + a.Type + " : " + a.Repo.RepoName + "\n"
+
+	return output
 }
 
 type Actor struct {
@@ -41,28 +71,30 @@ type Author struct {
 	Name  string `json:"name"`
 }
 
-func LoadJSON(resp *http.Response) ([]Action, error) {
+func LoadJSON(resp *http.Response) (GithubUser, error) {
 	body, err := io.ReadAll(resp.Body)
 
 	if err != nil {
-		return []Action{}, err
+		return GithubUser{}, err
 	}
 
 	var data []Action
 	if err := json.Unmarshal(body, &data); err != nil {
-		return []Action{}, err
+		return GithubUser{}, err
 	}
 
-	return data, nil
+	ret := GithubUser{UserActions: data}
+	return ret, nil
 }
 
-func Ping(username string) (int, error) {
+func Ping(username string, events int) (int, GithubUser, error) {
 	client := &http.Client{}
-	url := "https://api.github.com/users/" + username + "/events/public?per_page=1"
+	perPage := strconv.Itoa(events)
+	url := "https://api.github.com/users/" + username + "/events/public?per_page=" + perPage
 	req, err := http.NewRequest("GET", url, nil)
 
 	if err != nil {
-		return 0, err
+		return 0, GithubUser{}, err
 	}
 
 	req.Header.Set("Accept", "application/vnd.github+json")
@@ -71,10 +103,15 @@ func Ping(username string) (int, error) {
 	resp, err := client.Do(req)
 
 	if err != nil {
-		return 0, err
+		return 0, GithubUser{}, err
 	}
 	// This will close the resp once the ping function ends
 	defer resp.Body.Close()
 
-	return resp.StatusCode, nil
+	userData, err := LoadJSON(resp)
+	if err != nil {
+		return 0, GithubUser{}, err
+	}
+
+	return resp.StatusCode, userData, nil
 }

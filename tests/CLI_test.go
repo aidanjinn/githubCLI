@@ -23,14 +23,20 @@ func TestDriver(t *testing.T) {
 // Function Name we are testing is ping
 func TestPing(t *testing.T) {
 
+	events := 10
+
 	// This should return a proper response for my github account activity
-	statusCode, err := githubAPI.Ping("aidanjinn")
+	statusCode, userData, err := githubAPI.Ping("aidanjinn", events)
 
 	errOut(t, err)
 
 	// Failure for not getting a response at all
 	if statusCode != http.StatusOK {
 		t.Errorf("Expected status code %d, got %d", http.StatusOK, statusCode)
+	}
+
+	if len(userData.UserActions) == 0 {
+		t.Errorf("Expected userActions, got 0")
 	}
 }
 
@@ -78,9 +84,10 @@ func TestJSON(t *testing.T) {
 		StatusCode: http.StatusOK,
 	}
 
-	actions, err := githubAPI.LoadJSON(resp)
+	userData, err := githubAPI.LoadJSON(resp)
 	errOut(t, err)
 
+	actions := userData.UserActions
 	if len(actions) != 1 {
 		t.Fatalf("Expected 1 action, got %d", len(actions))
 	}
